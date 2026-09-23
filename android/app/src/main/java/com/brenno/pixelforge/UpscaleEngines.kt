@@ -52,7 +52,7 @@ class ImageUpscaler(private val context: Context) {
 
     private fun copyAsset(name: String): String {
         val output = File(context.cacheDir, name)
-        if (!output.exists()) context.assets.open("models/$name").use { input -> output.outputStream().use(input::copyTo) }
+        if (!output.exists()) context.assets.open("models/$name").use { input -> output.outputStream().use { target -> input.copyTo(target) } }
         return output.absolutePath
     }
 

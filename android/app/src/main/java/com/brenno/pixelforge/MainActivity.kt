@@ -20,6 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
@@ -29,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -50,6 +53,7 @@ class MainActivity : ComponentActivity() {
     private val queue = mutableStateListOf<QueueItem>()
     private var running by mutableStateOf(false)
     private var status by mutableStateOf("Adicione imagens ou vídeos.")
+    private val secretStore by lazy { SecretStore(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,9 +66,12 @@ class MainActivity : ComponentActivity() {
     private fun PixelForgeScreen() {
         val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> add(uris, false) }
         val videoPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> add(uris, true) }
+        val envPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let { importEnv(it) } }
         var scale by remember { mutableStateOf(4) }
+        var showSettings by remember { mutableStateOf(false) }
+        var layaKey by remember { mutableStateOf(secretStore.read().orEmpty()) }
 
-        Scaffold(topBar = { TopAppBar(title = { Text("PixelForge") }) }) { padding ->
+        Scaffold(topBar = { TopAppBar(title = { Text("PixelForge") }, actions = { IconButton(onClick = { showSettings = !showSettings }) { Icon(Icons.Default.Settings, "Configurações") } }) }) { padding ->
             Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp)) {
                 Spacer(Modifier.height(12.dp))
                 Text("Upscale local", style = MaterialTheme.typography.headlineMedium)
@@ -82,6 +89,19 @@ class MainActivity : ComponentActivity() {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Escala")
                     listOf(2, 3, 4).forEach { value -> FilterChip(selected = scale == value, onClick = { scale = value }, label = { Text("${value}×") }) }
+                }
+                if (showSettings) {
+                    Spacer(Modifier.height(12.dp))
+                    Card(Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(14.dp)) {
+                            Text("Integração Laya", style = MaterialTheme.typography.titleMedium)
+                            OutlinedTextField(value = layaKey, onValueChange = { layaKey = it }, label = { Text("LAYA_KEY") }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                                Button(onClick = { secretStore.write(layaKey.trim()); status = "Chave Laya salva com proteção do Android." }) { Text("Salvar chave") }
+                                Button(onClick = { envPicker.launch(arrayOf("*/*")) }) { Text("Importar .env") }
+                            }
+                        }
+                    }
                 }
                 Spacer(Modifier.height(12.dp))
                 if (running) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -116,6 +136,17 @@ class MainActivity : ComponentActivity() {
             queue += QueueItem(uri, uri.lastPathSegment ?: "arquivo", video)
         }
         status = "${queue.count { it.state == QueueState.WAITING }} item(ns) aguardando."
+    }
+
+    private fun importEnv(uri: Uri) {
+        val content = runCatching { contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } }.getOrNull()
+        val key = content?.lineSequence()?.map { it.trim() }?.firstOrNull { it.startsWith("LAYA_KEY=") }?.substringAfter('=')?.trim()?.trim('"', '\'')
+        if (!key.isNullOrBlank()) {
+            secretStore.write(key)
+            status = "LAYA_KEY importada e protegida localmente."
+        } else {
+            status = "O arquivo não contém LAYA_KEY válida."
+        }
     }
 
     private fun process(scale: Int) {

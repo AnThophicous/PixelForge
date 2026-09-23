@@ -22,6 +22,7 @@ Upscale local de imagens em Python com uma interface simples, pipeline de qualid
 - A seleção automática usa EDSR até 2048 px na maior dimensão da saída; FSRCNN e ESPCN ficam disponíveis até 4096 px.
 - A saída padrão é PNG para evitar perda adicional por JPEG.
 - O APK não inclui a chave Laya; o processamento Android não envia imagens para o Laya.
+- A tela Android aceita `LAYA_KEY` manualmente ou por importação de `.env`; somente a chave é extraída e armazenada cifrada no Android Keystore.
 
 ## Aceite
 

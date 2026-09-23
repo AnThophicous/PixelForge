@@ -48,4 +48,6 @@ Upscale aumenta resolução e pode recuperar bordas; não recupera detalhes que 
 
 O app Android se chama PixelForge e fica em `android/`. Ele usa Material 3 com tema azul, aceita múltiplas imagens e vídeos, mas processa a fila serialmente. Imagens usam FSRCNN x4 e são limitadas a 4K; vídeos usam o Transformer do Media3 para escala leve com aceleração do dispositivo e preservação do áudio.
 
+Na tela de configurações, use `Importar .env` ou digite `LAYA_KEY`. O app extrai somente essa variável e grava o valor cifrado pelo Android Keystore; o arquivo `.env` não é copiado para o armazenamento do app.
+
 Para compilar localmente com Android Studio, abra a pasta `android/`. O workflow `.github/workflows/android.yml` compila `app-debug.apk` e publica o arquivo como artefato da execução.
