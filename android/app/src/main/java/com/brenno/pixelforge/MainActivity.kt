@@ -47,7 +47,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.opencv.android.OpenCVLoader
 
 class MainActivity : ComponentActivity() {
     private val queue = mutableStateListOf<QueueItem>()
@@ -57,7 +56,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!OpenCVLoader.initLocal()) status = "OpenCV não carregou; reinstale o APK."
         setContent { PixelForgeTheme { PixelForgeScreen() } }
     }
 

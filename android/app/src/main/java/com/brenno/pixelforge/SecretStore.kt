@@ -20,6 +20,7 @@ class SecretStore(context: Context) {
                     .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
                     .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
                     .build()
+                )
             }.generateKey()
         }
     }
