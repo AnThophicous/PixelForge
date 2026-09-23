@@ -82,7 +82,9 @@ class ImageUpscaler(private val context: Context) {
             put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/PixelForge")
         }
         val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: error("Não foi possível criar a saída")
-        context.contentResolver.openOutputStream(uri).use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        context.contentResolver.openOutputStream(uri)?.use { output ->
+            check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)) { "Falha ao gravar a imagem" }
+        } ?: error("Não foi possível abrir a saída")
     }
 }
 
@@ -119,6 +121,8 @@ class VideoUpscaler(private val context: Context) {
             put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/PixelForge")
         }
         val uri = context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values) ?: error("Não foi possível criar a saída")
-        context.contentResolver.openOutputStream(uri).use { output -> source.inputStream().use { input -> input.copyTo(output!!) } }
+        context.contentResolver.openOutputStream(uri)?.use { output ->
+            source.inputStream().use { input -> input.copyTo(output) }
+        } ?: error("Não foi possível abrir a saída")
     }
 }

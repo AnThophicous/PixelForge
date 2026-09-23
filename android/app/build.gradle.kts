@@ -48,7 +48,11 @@ dependencies {
     implementation("androidx.media3:media3-transformer:1.11.1")
     implementation("androidx.media3:media3-effect:1.11.1")
     implementation("androidx.media3:media3-common:1.11.1")
-    implementation("org.opencv:opencv:4.13.0")
+    // JavaCPP's OpenCV preset bundles contrib's dnn_superres module, which the
+    // official Android AAR does not expose. Keep only phone/emulator ABIs.
+    implementation("org.bytedeco:opencv:4.13.0-1.5.13")
+    implementation("org.bytedeco:opencv:4.13.0-1.5.13:android-arm64")
+    implementation("org.bytedeco:opencv:4.13.0-1.5.13:android-x86_64")
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")
 }
