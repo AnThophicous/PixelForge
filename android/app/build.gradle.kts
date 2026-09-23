@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.brenno.pixelforge"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.brenno.pixelforge"
