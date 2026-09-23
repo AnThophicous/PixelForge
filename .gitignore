@@ -1,0 +1,11 @@
+.env
+models/
+__pycache__/
+tests/__pycache__/
+*.pyc
+android/.gradle/
+android/build/
+android/app/build/
+reference_*.png
+change_nail_bracelet_x4_intermediate.png
+change_nail_bracelet_8k.png
